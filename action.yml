@@ -1,0 +1,43 @@
+name: 'Cache S3'
+description: 'Cache build artifacts in Amazon S3'
+
+inputs:
+  action:
+    description: 'Operation to perform: put, get, or delete'
+    required: true
+  aws-region:
+    description: 'AWS Region'
+    required: true
+  bucket:
+    description: 'S3 bucket name'
+    required: true
+  key:
+    description: 'Cache key'
+    required: true
+  artifacts:
+    description: 'Newline-separated glob patterns of artifacts to cache (required for put)'
+    required: false
+  s3-class:
+    description: 'S3 storage class'
+    required: false
+    default: 'STANDARD'
+
+outputs:
+  cache-hit:
+    description: 'Whether a cache hit occurred'
+    value: ${{ steps.cache.outputs.CACHE_HIT }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: cache
+      id: cache
+      shell: bash
+      run: ${{ github.action_path }}/entrypoint.sh
+      env:
+        ACTION: ${{ inputs.action }}
+        AWS_REGION: ${{ inputs.aws-region }}
+        BUCKET: ${{ inputs.bucket }}
+        KEY: ${{ inputs.key }}
+        ARTIFACTS: ${{ inputs.artifacts }}
+        S3_CLASS: ${{ inputs.s3-class }}

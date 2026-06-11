@@ -1,0 +1,37 @@
+name: Action Build CI
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+jobs:
+  build-action:
+    runs-on: itau-linux-k8s-on-demand-medium
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15.5
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build binary
+        run: |
+          mkdir -p dist
+          env GOOS=linux GOARCH=amd64 go build -o dist/linux
+          chmod +x dist/linux
+
+      - name: Commit and push binary
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/linux
+          git diff --staged --quiet || git commit -m "chore: update dist/linux binary [skip ci]"
+          git push
