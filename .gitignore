@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+#claude
+.claude
+
 # Go build artifacts (local)
 *.exe
 *.test
